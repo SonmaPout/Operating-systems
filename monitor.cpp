@@ -15,7 +15,7 @@ public:
 
 class TextEvent : public Event{
 public:
-  TextEvent(int id, string text) : id_(id), text_(move(text)) {}
+  TextEvent(int id, string text) : id_(id), text_(std::move(text)) {}
   int id() const { return id_; }
   string describe() const override{
     return "событие " + to_string(id_) + ": \"" + text_ + "\"";
@@ -31,7 +31,7 @@ public:
     unique_lock<mutex> lock(mutex_);
     slotFree_.wait(lock, [this] { return !ready_; });
 
-    data_ = move(event);
+    data_ = std::move(event);
     ready_ = true;
     cout << "[поставщик]   отправлено " << data_->describe() << endl;
     eventReady_.notify_one();
@@ -44,7 +44,7 @@ public:
     if (!ready_)              
       return nullptr;
 
-    unique_ptr<Event> event = move(data_);
+    unique_ptr<Event> event = std::move(data_);
     ready_ = false;
     cout << "[потребитель] получено   " << event->describe() << endl;
     slotFree_.notify_one();
